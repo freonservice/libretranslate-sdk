@@ -11,6 +11,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	FormatText = "text"
+	FormatHTML = "html"
+)
+
 func (c *client) GetLanguages(ctx context.Context) ([]Language, error) {
 	body, err := c.get(ctx, c.languageURL)
 	if err != nil {
@@ -39,7 +44,7 @@ func (c *client) Translate(ctx context.Context, q, source, target string) (strin
 		Q:      q,
 		Source: source,
 		Target: target,
-		Format: "",
+		Format: FormatText,
 		Key:    c.apiKey,
 	}
 
