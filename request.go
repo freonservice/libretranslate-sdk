@@ -87,8 +87,8 @@ func (c *client) getRequest(ctx context.Context, url string) (*http.Request, err
 	return http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 }
 
-func (c *client) postRequest(ctx context.Context, reqBody []byte, url string) (*http.Request, error) {
-	return http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(reqBody))
+func (c *client) postRequest(ctx context.Context, body []byte, url string) (*http.Request, error) {
+	return http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(body))
 }
 
 func (c *client) parseBody(ctx context.Context, req *http.Request) ([]byte, error) {
