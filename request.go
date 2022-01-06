@@ -58,7 +58,7 @@ func (c *client) Translate(ctx context.Context, q, source, target string) (strin
 		return "", err
 	}
 
-	var translated TranslatedText
+	var translated Translated
 	err = json.Unmarshal(body, &translated)
 	if err != nil {
 		return "", err
@@ -74,7 +74,7 @@ func (c *client) get(ctx context.Context, url string) ([]byte, error) {
 	req = req.WithContext(ctx)
 	req.Header.Add("Content-Type", "application/json")
 
-	var rReq *retryablehttp.Request
+	var rReq = new(retryablehttp.Request)
 	rReq.Request = req
 	resp, err := c.httpClient.Do(rReq)
 	if err != nil {
@@ -93,7 +93,7 @@ func (c *client) post(ctx context.Context, reqBody []byte, url string) ([]byte, 
 	req = req.WithContext(ctx)
 	req.Header.Add("Content-Type", "application/json")
 
-	var rReq *retryablehttp.Request
+	var rReq = new(retryablehttp.Request)
 	rReq.Request = req
 	resp, err := c.httpClient.Do(rReq)
 	if err != nil {

@@ -28,6 +28,6 @@ type TranslateRequest struct {
 	Key    string `json:"api_key"`
 }
 
-type TranslatedText struct {
+type Translated struct {
 	Text string `json:"translatedText"`
 }
