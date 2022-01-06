@@ -13,6 +13,7 @@ type FrontendSetting struct {
 	FrontendTimeout      int                     `json:"frontendTimeout"`
 	Language             FrontendSettingLanguage `json:"language"`
 	SupportedFilesFormat []string                `json:"supportedFilesFormat"`
+	Error                string                  `json:"error,omitempty"`
 }
 
 type Language struct {
@@ -30,4 +31,8 @@ type TranslateRequest struct {
 
 type Translated struct {
 	Text string `json:"translatedText"`
+}
+
+type ErrorMsg struct {
+	Error string `json:"error"`
 }

@@ -17,20 +17,32 @@ const (
 )
 
 func (c *client) GetLanguages(ctx context.Context) ([]Language, error) {
-	body, err := c.get(ctx, c.languageURL)
+	req, err := c.getRequest(ctx, c.languageURL)
 	if err != nil {
 		return nil, err
 	}
+
+	body, err := c.parseBody(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
 	var data []Language
 	err = json.Unmarshal(body, &data)
 	return data, err
 }
 
 func (c *client) GetFrontendSetting(ctx context.Context) (*FrontendSetting, error) {
-	body, err := c.get(ctx, c.frontendSettingURL)
+	req, err := c.getRequest(ctx, c.frontendSettingURL)
 	if err != nil {
 		return nil, err
 	}
+
+	body, err := c.parseBody(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
 	var data FrontendSetting
 	err = json.Unmarshal(body, &data)
 	if err != nil {
@@ -53,7 +65,12 @@ func (c *client) Translate(ctx context.Context, q, source, target string) (strin
 		return "", err
 	}
 
-	body, err := c.post(ctx, reqBody, c.translateURL)
+	req, err := c.postRequest(ctx, reqBody, c.translateURL)
+	if err != nil {
+		return "", err
+	}
+
+	body, err := c.parseBody(ctx, req)
 	if err != nil {
 		return "", err
 	}
@@ -66,30 +83,15 @@ func (c *client) Translate(ctx context.Context, q, source, target string) (strin
 	return translated.Text, nil
 }
 
-func (c *client) get(ctx context.Context, url string) ([]byte, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
-	if err != nil {
-		return nil, errors.Wrapf(err, "problem with req url %s", url)
-	}
-	req = req.WithContext(ctx)
-	req.Header.Add("Content-Type", "application/json")
-
-	var rReq = new(retryablehttp.Request)
-	rReq.Request = req
-	resp, err := c.httpClient.Do(rReq)
-	if err != nil {
-		return nil, errors.Wrapf(err, "problem with resp url %s", url)
-	}
-	defer resp.Body.Close()
-
-	return io.ReadAll(resp.Body)
+func (c *client) getRequest(ctx context.Context, url string) (*http.Request, error) {
+	return http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 }
 
-func (c *client) post(ctx context.Context, reqBody []byte, url string) ([]byte, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(reqBody))
-	if err != nil {
-		return nil, err
-	}
+func (c *client) postRequest(ctx context.Context, reqBody []byte, url string) (*http.Request, error) {
+	return http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(reqBody))
+}
+
+func (c *client) parseBody(ctx context.Context, req *http.Request) ([]byte, error) {
 	req = req.WithContext(ctx)
 	req.Header.Add("Content-Type", "application/json")
 
@@ -101,5 +103,20 @@ func (c *client) post(ctx context.Context, reqBody []byte, url string) ([]byte, 
 	}
 	defer resp.Body.Close()
 
-	return io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusOK {
+		return body, nil
+	}
+
+	var errorMsg ErrorMsg
+	err = json.Unmarshal(body, &errorMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, errors.New(errorMsg.Error)
 }

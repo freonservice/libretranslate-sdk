@@ -46,7 +46,7 @@ func NewLibreTranslate(apiURL string) Client {
 		apiURL:             apiURL,
 		retryMax:           defaultRetryMax,
 		connTimeout:        defaultConnTimeout,
-		languageURL:        fmt.Sprintf("%s/language", apiURL),
+		languageURL:        fmt.Sprintf("%s/languages", apiURL),
 		frontendSettingURL: fmt.Sprintf("%s/frontend/settings", apiURL),
 		translateURL:       fmt.Sprintf("%s/translate", apiURL),
 		logger:             structlog.New(),

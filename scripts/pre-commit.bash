@@ -17,7 +17,7 @@ else
 fi
 
 echo "Running tests"
-if go test -race -v ./...; then
+if MallocNanoZone=0 go test -race -v ./...; then
   echo "Tests completed successful"
 else
   echo "Tests must pass before commit!"
